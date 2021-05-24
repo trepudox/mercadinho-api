@@ -1,6 +1,5 @@
 package com.trepudox.mercadinho.exception;
 
-import com.trepudox.mercadinho.exception.produto.ProdutoNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -16,7 +15,7 @@ public class ApiExceptionHandler {
     public ResponseEntity<Object> handleException(Exception e) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
-        if (e instanceof ProdutoNotFoundException)
+        if (e instanceof NotFoundException)
             status = HttpStatus.NOT_FOUND;
 
         ApiExceptionClass erro = new ApiExceptionClass(ZonedDateTime.now(ZoneId.of("America/Sao_Paulo")),

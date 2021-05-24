@@ -6,8 +6,8 @@ public class CampoBlankException extends Exception {
         super("Esse campo não pode estar nulo ou em branco!");
     }
 
-    public CampoBlankException(String nomeCampo) {
-        super("O campo '" + nomeCampo + "' não pode estar nulo ou em branco!");
+    public CampoBlankException(String msg) {
+        super(msg);
     }
 
     public CampoBlankException(String msg, Throwable cause) {

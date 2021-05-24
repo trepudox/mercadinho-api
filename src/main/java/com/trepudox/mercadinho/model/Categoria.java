@@ -1,10 +1,7 @@
 package com.trepudox.mercadinho.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -13,17 +10,18 @@ import java.util.List;
 
 @Entity
 @Table(name = "tb_categoria")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter  @EqualsAndHashCode
+@NoArgsConstructor @AllArgsConstructor
 public class Categoria {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column
+    @Column(nullable = false)
     private String nome;
 
-    @Column
+    @Column(nullable = false)
     private String descricao;
 
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -31,4 +29,8 @@ public class Categoria {
     @JsonIgnoreProperties("categoria")
     private List<Produto> produtos;
 
+    public Categoria(String nome, String descricao) {
+        this.nome = nome;
+        this.descricao = descricao;
+    }
 }

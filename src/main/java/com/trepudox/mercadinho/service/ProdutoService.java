@@ -48,16 +48,39 @@ public class ProdutoService {
 
     public Produto save(Produto produto) throws CampoBlankException {
         if (produto.getCategoria() == null)
-            throw new CampoBlankException("categoria");
+            throw new CampoBlankException("O campo 'categoria' não pode estar nulo ou em branco!");
 
-        if (produto.getNome() == null)
-            throw new CampoBlankException("nome");
+        if (produto.getNome() == null || produto.getNome().isBlank())
+            throw new CampoBlankException("O campo 'nome' não pode estar nulo ou em branco!");
 
-        if (produto.getPreco() == null)
-            throw new CampoBlankException("preco");
+        if (produto.getPreco() == null || produto.getPreco().isNaN() || produto.getPreco() <= 0)
+            throw new CampoBlankException("O campo 'preco' precisa ser preenchido corretamente!");
 
 
         return produtoRepository.save(produto);
+    }
+
+    // NÃO ALTERAR POR CONTA DA GAMBIARRA NOS TESTES KKK
+    public Produto update(Integer id, Produto produto) throws ProdutoNotFoundException, CampoBlankException {
+        Produto p = findById(id);
+
+        boolean categoriaIsNull = produto.getCategoria() == null;
+        boolean nomeIsBlankOrNull = produto.getNome() == null || produto.getNome().isBlank();
+        boolean precoIsInvalid = produto.getPreco() == null || produto.getPreco().isNaN() || produto.getPreco() <= 0;
+
+        if (categoriaIsNull && nomeIsBlankOrNull && precoIsInvalid)
+            throw new CampoBlankException("Preencha os campos corretamente!");
+
+        if (!categoriaIsNull)
+            p.setCategoria(produto.getCategoria());
+
+        if (!nomeIsBlankOrNull)
+            p.setNome(produto.getNome());
+
+        if (!precoIsInvalid)
+            p.setPreco(produto.getPreco());
+
+        return produtoRepository.save(p);
     }
 
     public void delete(Integer id) throws ProdutoNotFoundException {
