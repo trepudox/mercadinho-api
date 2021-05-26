@@ -13,13 +13,14 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<Object> handleException(Exception e) {
+        ZonedDateTime timestamp = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"));
         HttpStatus status = HttpStatus.BAD_REQUEST;
+        String msg = e.getMessage();
 
         if (e instanceof NotFoundException)
             status = HttpStatus.NOT_FOUND;
 
-        ApiExceptionClass erro = new ApiExceptionClass(ZonedDateTime.now(ZoneId.of("America/Sao_Paulo")),
-               status , e.getMessage());
+        ApiExceptionClass erro = new ApiExceptionClass(timestamp, status, msg);
 
         return ResponseEntity.status(status).body(erro);
     }
