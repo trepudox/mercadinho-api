@@ -152,172 +152,58 @@ class ProdutoServiceTest {
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class Update {
 
-        // gambiarra
-        private Produto updateProduto(Produto produto) throws CampoBlankException {
-            Produto p = new Produto(1, "nome", 1.0, new Categoria());
-
-            boolean categoriaIsNull = produto.getCategoria() == null;
-            boolean nomeIsBlankOrNull = produto.getNome() == null || produto.getNome().isBlank();
-            boolean precoIsInvalid = produto.getPreco() == null || produto.getPreco().isNaN() || produto.getPreco() <= 0;
-
-            if (categoriaIsNull && nomeIsBlankOrNull && precoIsInvalid)
-                throw new CampoBlankException("Preencha os campos corretamente!");
-
-            if (!categoriaIsNull)
-                p.setCategoria(produto.getCategoria());
-
-            if (!nomeIsBlankOrNull)
-                p.setNome(produto.getNome());
-
-            if (!precoIsInvalid)
-                p.setPreco(produto.getPreco());
-
-            return p;
-        }
-
         private List<Produto> listaProdutoInvalido() {
             return List.of(new Produto(null, null, null),
                     new Produto("", 0.0, null),
-                    new Produto("", -1.0, null));
+                    new Produto("", -1.0, null),
+                    new Produto("AAA", 10.0, null),
+                    new Produto("AAAA", -1.0, new Categoria()),
+                    new Produto("AAAA", 0.0, new Categoria()),
+                    new Produto("", 10.0, new Categoria()),
+                    new Produto(null, 5.0, new Categoria()));
         }
 
-//        private List<Produto> listaProdutoValido() {
-//            return List.of(new Produto("produto", 1.0, new Categoria()),
-//                    new Produto("produto2", 0.0, new Categoria()),
-//                    new Produto("produto3", 10.0, null),
-//                    new Produto("", 999.0, null),
-//                    new Produto(null, null, new Categoria()));
-//        }
+        private List<Produto> listaProdutoValido() {
+            return List.of(new Produto("Nome1", 100.50, new Categoria(1, "nome1", "desc1", List.of())),
+                    new Produto("Nome2", 88.99, new Categoria(2, "nome2", "desc2", List.of())),
+                    new Produto("Nome3", 0.01, new Categoria(3, "nome3", "desc3", List.of(new Produto()))));
+        }
 
         @BeforeAll
-        private void setupInicial() {
-            when(produtoRepositoryMock.findById(1)).thenReturn(Optional.of(new Produto(1, "nome", 1.0, new Categoria())));
-            when(produtoRepositoryMock.findById(9999999)).thenReturn(Optional.empty());
+        void setup() {
+            Produto p = new Produto(); p.setId(1);
 
-            // when(produtoRepositoryMock.save(p)).thenReturn(p);
-        }
-
-        @Test
-        void testUpdateIdNaoEncontrado() {
-            Produto p = new Produto();
-            when(produtoRepositoryMock.save(p)).thenReturn(p);
-
-            assertThrows(ProdutoNotFoundException.class, () -> produtoService.update(9999999, p));
-        }
-
-        @Test
-        void testUpdateTodosNull() {
-            Produto p = new Produto();
-            when(produtoRepositoryMock.save(p)).thenReturn(p);
-
-            try {
-                produtoService.update(1, p);
-                fail("Não lançou exceção!!!!");
-            } catch (CampoBlankException e) {
-                assertEquals("Preencha os campos corretamente!", e.getMessage());
-            } catch (Exception e) {
-                e.printStackTrace();
-                fail("Erro inesperado!!!!");
-            }
+            when(produtoRepositoryMock.findById(1)).thenReturn(Optional.of(p));
         }
 
         @ParameterizedTest(name = "Teste {index}")
         @MethodSource("listaProdutoInvalido")
-        void testUpdateInvalido(Produto p) {
-            when(produtoRepositoryMock.save(p)).thenReturn(p);
+        void testProdutoInvalido(Produto produto) {
+            when(produtoRepositoryMock.save(produto)).thenReturn(produto);
 
             try {
-                produtoService.update(1, p);
-                fail("Não lançou exceção!!!!");
-            } catch (CampoBlankException e) {
+                produtoService.update(1, produto);
+                fail("Não lançou exceção!!!");
+            } catch (ProdutoNotFoundException | CampoBlankException e) {
                 assertEquals("Preencha os campos corretamente!", e.getMessage());
-            } catch (Exception e) {
-                e.printStackTrace();
-                fail("Erro inesperado!!!");
             }
         }
 
-        @Test
-        void testUpdateValido1() {
-            Produto p = new Produto("produto2", 0.0, new Categoria());
+        @ParameterizedTest(name = "Teste {index}")
+        @MethodSource("listaProdutoValido")
+        void testProdutoValido(Produto produto) {
+            Integer id = 1;
+            Produto produtoEsperado = new Produto(id, produto.getNome(), produto.getPreco(), produto.getCategoria());
+            when(produtoRepositoryMock.save(produto)).thenReturn(produto);
 
             try {
-                produtoService.update(1, p);
-                Produto pSalvo = updateProduto(p);
-                assertAll(() -> assertEquals(p.getNome(), pSalvo.getNome()),
-                        () -> assertNotEquals(p.getPreco(), pSalvo.getPreco()),
-                        () -> assertEquals(p.getCategoria(), pSalvo.getCategoria()));
+                Produto produtoRetornado = produtoService.update(id, produto);
+                assertAll(() -> assertEquals(id, produtoRetornado.getId()),
+                        () -> assertEquals(produtoEsperado.getNome(), produtoRetornado.getNome()),
+                        () -> assertEquals(produtoEsperado.getPreco(), produtoRetornado.getPreco()),
+                        () -> assertEquals(produtoEsperado.getCategoria(), produtoRetornado.getCategoria()));
             } catch (ProdutoNotFoundException | CampoBlankException e) {
-                e.printStackTrace();
-                fail("Não era pra lançar exceção!!!!");
-            }
-        }
-
-        @Test
-        void testUpdateValido2() {
-            Produto p = new Produto("produto", 1.0, new Categoria("nome", "desc"));
-            when(produtoRepositoryMock.save(p)).thenReturn(p);
-
-            try {
-                produtoService.update(1, p);
-                Produto pSalvo = updateProduto(p);
-                assertAll(() -> assertEquals(p.getNome(), pSalvo.getNome()),
-                        () -> assertEquals(p.getPreco(), pSalvo.getPreco()),
-                        () -> assertEquals(p.getCategoria(), pSalvo.getCategoria()));
-            } catch (ProdutoNotFoundException | CampoBlankException e) {
-                e.printStackTrace();
-                fail("Não era pra lançar exceção!!!!");
-            }
-        }
-
-        @Test
-        void testUpdateValido3() {
-            Produto p = new Produto("produto3", 10.0, null);
-            when(produtoRepositoryMock.save(p)).thenReturn(p);
-
-            try {
-                produtoService.update(1, p);
-                Produto pSalvo = updateProduto(p);
-                assertAll(() -> assertEquals(p.getNome(), pSalvo.getNome()),
-                        () -> assertEquals(p.getPreco(), pSalvo.getPreco()),
-                        () -> assertNotEquals(p.getCategoria(), pSalvo.getCategoria()));
-            } catch (ProdutoNotFoundException | CampoBlankException e) {
-                e.printStackTrace();
-                fail("Não era pra lançar exceção!!!!");
-            }
-        }
-
-        @Test
-        void testUpdateValido4() {
-            Produto p = new Produto("", 999.0, null);
-            when(produtoRepositoryMock.save(p)).thenReturn(p);
-
-            try {
-                produtoService.update(1, p);
-                Produto pSalvo = updateProduto(p);
-                assertAll(() -> assertNotEquals(p.getNome(), pSalvo.getNome()),
-                        () -> assertEquals(p.getPreco(), pSalvo.getPreco()),
-                        () -> assertNotEquals(p.getCategoria(), pSalvo.getCategoria()));
-            } catch (ProdutoNotFoundException | CampoBlankException e) {
-                e.printStackTrace();
-                fail("Não era pra lançar exceção!!!!");
-            }
-        }
-
-        @Test
-        void testUpdateValido5() {
-            Produto p = new Produto(null, null, new Categoria());
-            when(produtoRepositoryMock.save(p)).thenReturn(p);
-
-            try {
-                produtoService.update(1, p);
-                Produto pSalvo = updateProduto(p);
-                assertAll(() -> assertNotEquals(p.getNome(), pSalvo.getNome()),
-                        () -> assertNotEquals(p.getPreco(), pSalvo.getPreco()),
-                        () -> assertEquals(p.getCategoria(), pSalvo.getCategoria()));
-            } catch (ProdutoNotFoundException | CampoBlankException e) {
-                e.printStackTrace();
-                fail("Não era pra lançar exceção!!!!");
+                fail("Não era pra lançar exceção!!!");
             }
         }
 

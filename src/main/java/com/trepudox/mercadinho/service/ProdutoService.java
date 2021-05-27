@@ -60,7 +60,6 @@ public class ProdutoService {
         return produtoRepository.save(produto);
     }
 
-    // NÃO ALTERAR POR CONTA DA GAMBIARRA NOS TESTES KKK
     public Produto update(Integer id, Produto produto) throws ProdutoNotFoundException, CampoBlankException {
         Produto p = findById(id);
 
@@ -68,19 +67,12 @@ public class ProdutoService {
         boolean nomeIsBlankOrNull = produto.getNome() == null || produto.getNome().isBlank();
         boolean precoIsInvalid = produto.getPreco() == null || produto.getPreco().isNaN() || produto.getPreco() <= 0;
 
-        if (categoriaIsNull && nomeIsBlankOrNull && precoIsInvalid)
+        if (categoriaIsNull || nomeIsBlankOrNull || precoIsInvalid)
             throw new CampoBlankException("Preencha os campos corretamente!");
 
-        if (!categoriaIsNull)
-            p.setCategoria(produto.getCategoria());
+        produto.setId(p.getId());
 
-        if (!nomeIsBlankOrNull)
-            p.setNome(produto.getNome());
-
-        if (!precoIsInvalid)
-            p.setPreco(produto.getPreco());
-
-        return produtoRepository.save(p);
+        return produtoRepository.save(produto);
     }
 
     public void delete(Integer id) throws ProdutoNotFoundException {

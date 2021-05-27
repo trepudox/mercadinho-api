@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/produto")
+@RequestMapping("/produtos")
 public class ProdutoController {
 
     @Autowired
     private ProdutoService produtoService;
 
-    @GetMapping
-    public ResponseEntity<Produto> getById(@RequestParam(name = "id") Integer id) throws ProdutoNotFoundException {
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Produto> getById(@PathVariable(name = "id") Integer id) throws ProdutoNotFoundException {
         return ResponseEntity.status(HttpStatus.OK).body(produtoService.findById(id));
     }
 
