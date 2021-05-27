@@ -20,6 +20,9 @@ public class ApiExceptionHandler {
         if (e instanceof NotFoundException)
             status = HttpStatus.NOT_FOUND;
 
+        if (msg.startsWith("Failed to convert value of type 'java.lang.String' to required type "))
+            msg = "Impossível converter o tipo de dado enviado.";
+
         ApiExceptionClass erro = new ApiExceptionClass(timestamp, status, msg);
 
         return ResponseEntity.status(status).body(erro);

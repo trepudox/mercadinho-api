@@ -22,7 +22,7 @@ public class ProdutoService {
 
         Optional<Produto> p = produtoRepository.findById(id);
 
-        if (!p.isPresent())
+        if (p.isEmpty())
             throw new ProdutoNotFoundException("Não existe nenhum produto com esse ID!");
 
         return p.get();
