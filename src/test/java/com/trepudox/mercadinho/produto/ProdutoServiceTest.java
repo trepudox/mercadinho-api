@@ -37,6 +37,8 @@ class ProdutoServiceTest {
 
         @Test
         void testFindById1() {
+            when(produtoRepositoryMock.findById(9999999)).thenReturn(Optional.empty());
+
             try {
                 Produto p = produtoService.findById(9999999);
                 fail("Não lançou exceção!!!");
@@ -192,9 +194,10 @@ class ProdutoServiceTest {
         @ParameterizedTest(name = "Teste {index}")
         @MethodSource("listaProdutoValido")
         void testProdutoValido(Produto produto) {
+            when(produtoRepositoryMock.save(produto)).thenReturn(produto);
+
             Integer id = 1;
             Produto produtoEsperado = new Produto(id, produto.getNome(), produto.getPreco(), produto.getCategoria());
-            when(produtoRepositoryMock.save(produto)).thenReturn(produto);
 
             try {
                 Produto produtoRetornado = produtoService.update(id, produto);
