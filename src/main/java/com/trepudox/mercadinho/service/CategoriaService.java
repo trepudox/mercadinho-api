@@ -53,6 +53,9 @@ public class CategoriaService {
         if (categoria.getDescricao().isBlank())
             throw new CampoBlankException("O campo 'descricao' não pode estar nulo ou em branco!");
 
+        categoria.setId(null);
+        categoria.setProdutos(null);
+
         return categoriaRepository.save(categoria);
     }
 
@@ -69,6 +72,12 @@ public class CategoriaService {
         categoria.setProdutos(c.getProdutos());
 
         return categoriaRepository.save(c);
+    }
+
+    public void delete(Integer id) throws CategoriaNotFoundException {
+        Categoria c = findById(id);
+
+        categoriaRepository.delete(c);
     }
 
 }

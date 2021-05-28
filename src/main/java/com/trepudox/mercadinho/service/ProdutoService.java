@@ -56,6 +56,7 @@ public class ProdutoService {
         if (produto.getPreco() == null || produto.getPreco().isNaN() || produto.getPreco() <= 0)
             throw new CampoBlankException("O campo 'preco' precisa ser preenchido corretamente!");
 
+        produto.setId(null);
 
         return produtoRepository.save(produto);
     }

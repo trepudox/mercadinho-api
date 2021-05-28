@@ -33,4 +33,10 @@ public class Categoria {
         this.nome = nome;
         this.descricao = descricao;
     }
+
+    public Categoria(Integer id, String nome, String descricao) {
+        this.id = id;
+        this.nome = nome;
+        this.descricao = descricao;
+    }
 }
