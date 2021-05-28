@@ -22,7 +22,7 @@ public class CategoriaService {
 
         Optional<Categoria> c = categoriaRepository.findById(id);
 
-        if (!c.isPresent())
+        if (c.isEmpty())
             throw new CategoriaNotFoundException("Não existe nenhuma categoria com esse ID!");
 
         return c.get();
@@ -59,17 +59,14 @@ public class CategoriaService {
     public Categoria update(Integer id, Categoria categoria) throws CategoriaNotFoundException, CampoBlankException {
         Categoria c = findById(id);
 
-        boolean nomeIsBlank = categoria.getNome().isBlank();
-        boolean descricaoIsBlank = categoria.getDescricao().isBlank();
+        boolean nomeIsBlank = categoria.getNome() == null || categoria.getNome().isBlank();
+        boolean descricaoIsBlank = categoria.getDescricao() == null || categoria.getDescricao().isBlank();
 
         if (nomeIsBlank && descricaoIsBlank)
             throw new CampoBlankException("Preencha os campos corretamente!");
 
-        if (!nomeIsBlank)
-            c.setNome(categoria.getNome());
-
-        if(!descricaoIsBlank)
-            c.setNome(categoria.getDescricao());
+        categoria.setId(c.getId());
+        categoria.setProdutos(c.getProdutos());
 
         return categoriaRepository.save(c);
     }
