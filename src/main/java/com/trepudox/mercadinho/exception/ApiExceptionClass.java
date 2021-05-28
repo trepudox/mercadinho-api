@@ -3,7 +3,6 @@ package com.trepudox.mercadinho.exception;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.http.HttpStatus;
 
 import java.time.ZonedDateTime;
 
@@ -12,8 +11,7 @@ import java.time.ZonedDateTime;
 public class ApiExceptionClass {
 
     private ZonedDateTime timestamp;
-    private String cause;
-    private HttpStatus httpStatus;
     private String message;
+    private String type;
 
 }

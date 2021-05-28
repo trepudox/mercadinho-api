@@ -15,7 +15,6 @@ public class ApiExceptionHandler {
     public ResponseEntity<Object> handleException(Exception e) {
         ZonedDateTime timestamp = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"));
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        String cause = e.getClass().toString().substring(6);
         String msg = e.getMessage();
 
         if (e instanceof NotFoundException)
@@ -24,7 +23,12 @@ public class ApiExceptionHandler {
         if (msg.startsWith("Failed to convert value of type 'java.lang.String' to required type "))
             msg = "Impossível converter o tipo de dado enviado.";
 
-        ApiExceptionClass erro = new ApiExceptionClass(timestamp, cause, status, msg);
+
+
+        String type = status.is1xxInformational() ? "Informational" : status.is2xxSuccessful() ? "Successful" :
+                status.is3xxRedirection() ? "Redirection" : status.is4xxClientError() ? "Error" : "Internal Error";
+
+        ApiExceptionClass erro = new ApiExceptionClass(timestamp, msg, type);
 
         return ResponseEntity.status(status).body(erro);
     }
