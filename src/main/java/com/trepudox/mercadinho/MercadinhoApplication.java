@@ -8,6 +8,7 @@ public class MercadinhoApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(MercadinhoApplication.class, args);
+		
 	}
 
 }
