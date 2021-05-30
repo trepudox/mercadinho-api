@@ -36,7 +36,7 @@ class ProdutoServiceTest {
     class Find {
 
         @Test
-        void testFindById1() {
+        void testFindByIdInexistente() {
             when(produtoRepositoryMock.findById(9999999)).thenReturn(Optional.empty());
 
             try {
@@ -48,12 +48,27 @@ class ProdutoServiceTest {
         }
 
         @Test
-        void testFindById2() {
+        void testFindByIdNegativo() {
             try {
                 Produto p = produtoService.findById(-1);
                 fail("Não lançou exceção!!!");
             } catch (ProdutoNotFoundException e) {
                 assertEquals("Não existem produtos com ID negativo!", e.getMessage());
+            }
+        }
+
+        @Test
+        void testFindByIdNormal() {
+            Produto produtoEsperado = new Produto(10, "nomeProduto", 10.0, new Categoria());
+
+            when(produtoRepositoryMock.findById(10)).thenReturn(Optional.of(produtoEsperado));
+
+            try {
+                Produto produtoRetornado = produtoService.findById(10);
+                assertEquals(produtoEsperado, produtoRetornado);
+            } catch (ProdutoNotFoundException e) {
+                e.printStackTrace();
+                fail("Não era pra lançar exceção!!!");
             }
         }
 
@@ -63,7 +78,7 @@ class ProdutoServiceTest {
     class FindAll {
 
         @Test
-        void testFindAll1() {
+        void testFindAllVazio() {
             when(produtoRepositoryMock.findAll()).thenReturn(List.of());
 
             try {
@@ -75,7 +90,7 @@ class ProdutoServiceTest {
         }
 
         @Test
-        void testFindAll2() {
+        void testFindAllNormal() {
             when(produtoRepositoryMock.findAll()).thenReturn(List.of(new Produto()));
 
             try {
@@ -86,18 +101,7 @@ class ProdutoServiceTest {
         }
 
         @Test
-        void testFindAllByNome1() {
-            when(produtoRepositoryMock.findAllByNomeContainingIgnoreCase("produto")).thenReturn(List.of(new Produto()));
-
-            try {
-                produtoService.findAllByNome("produto");
-            } catch (ProdutoNotFoundException e) {
-                fail("Não era pra lançar exceção!!!");
-            }
-        }
-
-        @Test
-        void testFindAllByNome2() {
+        void testFindAllByNomeVazio() {
             when(produtoRepositoryMock.findAllByNomeContainingIgnoreCase("produto")).thenReturn(List.of());
 
             try {
@@ -107,6 +111,18 @@ class ProdutoServiceTest {
                 assertEquals("Não há nenhum produto com esse nome!", e.getMessage());
             }
         }
+
+        @Test
+        void testFindAllByNomeNormal() {
+            when(produtoRepositoryMock.findAllByNomeContainingIgnoreCase("produto")).thenReturn(List.of(new Produto()));
+
+            try {
+                produtoService.findAllByNome("produto");
+            } catch (ProdutoNotFoundException e) {
+                fail("Não era pra lançar exceção!!!");
+            }
+        }
+
 
     }
 
@@ -180,7 +196,7 @@ class ProdutoServiceTest {
 
         @ParameterizedTest(name = "Teste {index}")
         @MethodSource("listaProdutoInvalido")
-        void testProdutoInvalido(Produto produto) {
+        void testUpdateProdutoInvalido(Produto produto) {
             when(produtoRepositoryMock.save(produto)).thenReturn(produto);
 
             try {
@@ -193,7 +209,7 @@ class ProdutoServiceTest {
 
         @ParameterizedTest(name = "Teste {index}")
         @MethodSource("listaProdutoValido")
-        void testProdutoValido(Produto produto) {
+        void testUpdateProdutoValido(Produto produto) {
             when(produtoRepositoryMock.save(produto)).thenReturn(produto);
 
             Integer id = 1;
@@ -216,7 +232,7 @@ class ProdutoServiceTest {
     class Delete {
 
         @Test
-        void testDelete1() {
+        void testDeleteIdInexistente() {
             try {
                 produtoService.delete(999999);
                 fail("Não lançou exceção!");
@@ -226,7 +242,7 @@ class ProdutoServiceTest {
         }
 
         @Test
-        void testDelete2() {
+        void testDeleteIdNegativo() {
             try {
                 produtoService.delete(-1);
                 fail("Não lançou exceção!!");
