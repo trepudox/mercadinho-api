@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import com.trepudox.mercadinho.exception.categoria.CategoriaNotFoundException;
+import com.trepudox.mercadinho.model.Categoria;
 import com.trepudox.mercadinho.repository.CategoriaRepository;
 import com.trepudox.mercadinho.service.CategoriaService;
 import org.junit.jupiter.api.DisplayName;
@@ -32,8 +33,8 @@ class CategoriaServiceTest {
     class Find {
 
         @Test
-        void testFindById1() {
-            when(categoriaRepositoryMock.findById(999999999)).thenReturn(Optional.empty());
+        void testFindByIdInexistente() {
+            when(categoriaRepositoryMock.findById(9999999)).thenReturn(Optional.empty());
 
             try{
                 categoriaService.findById(9999999);
@@ -44,12 +45,27 @@ class CategoriaServiceTest {
         }
 
         @Test
-        void testFindById2() {
+        void testFindByIdNegativo() {
             try {
                 categoriaService.findById(-1);
                 fail("Não lançou exceção!!!");
             } catch (CategoriaNotFoundException e) {
                 assertEquals("Não existem categorias com ID negativo!", e.getMessage());
+            }
+        }
+
+        @Test
+        void testFindByIdNormal() {
+            Categoria categoriaEsperada = new Categoria(10,"nomeCategoria", "descricaoCategoria");
+
+            when(categoriaRepositoryMock.findById(10)).thenReturn(Optional.of(categoriaEsperada));
+
+            try {
+                Categoria categoriaRetornada = categoriaService.findById(10);
+                assertEquals(categoriaEsperada, categoriaRetornada);
+            } catch (CategoriaNotFoundException e) {
+                e.printStackTrace();
+                fail("Não era pra lançar exceção!");
             }
         }
 
