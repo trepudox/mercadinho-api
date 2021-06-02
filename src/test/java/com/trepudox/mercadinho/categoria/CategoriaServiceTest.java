@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 @DisplayName("Categoria Service")
@@ -74,6 +75,42 @@ class CategoriaServiceTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class FindAll {
+
+        @Test
+        void testFindAllVazio() {
+            when(categoriaRepositoryMock.findAll()).thenReturn(List.of());
+
+            Exception e = assertThrows(CategoriaNotFoundException.class, () -> categoriaService.findAll());
+            assertEquals("Ainda não há categorias cadastradas!", e.getMessage());
+        }
+
+        @Test
+        void testFindAllNormal() {
+            List<Categoria> resultadoEsperado = List.of(new Categoria(), new Categoria());
+
+            when(categoriaRepositoryMock.findAll()).thenReturn(resultadoEsperado);
+
+            List<Categoria> resultadoRetornado = assertDoesNotThrow(() -> categoriaService.findAll());
+            assertEquals(resultadoEsperado, resultadoRetornado);
+        }
+
+        @Test
+        void testFindAllByNomeVazio() {
+            when(categoriaRepositoryMock.findByNomeContainingIgnoreCase("nome1")).thenReturn(List.of());
+
+            Exception e = assertThrows(CategoriaNotFoundException.class, () -> categoriaService.findAllByNome("nome1"));
+            assertEquals("Não há nenhuma categoria com esse nome!", e.getMessage());
+        }
+
+        @Test
+        void testFindAllByNomeNormal() {
+            List<Categoria> resultadoEsperado = List.of(new Categoria(), new Categoria(), new Categoria());
+
+            when(categoriaRepositoryMock.findByNomeContainingIgnoreCase("nome2")).thenReturn(resultadoEsperado);
+
+            List<Categoria> resultadoRetornado = assertDoesNotThrow(() -> categoriaService.findAllByNome("nome2"));
+            assertEquals(resultadoEsperado, resultadoRetornado);
+        }
 
     }
 
