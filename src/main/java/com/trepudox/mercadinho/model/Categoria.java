@@ -10,7 +10,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "tb_categoria")
-@Getter @Setter  @EqualsAndHashCode
+@Data @Builder
 @NoArgsConstructor @AllArgsConstructor
 public class Categoria {
 

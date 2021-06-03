@@ -189,7 +189,7 @@ class ProdutoServiceTest {
 
         @BeforeAll
         void setup() {
-            Produto p = new Produto(); p.setId(1);
+            Produto p = Produto.builder().id(1).build();
 
             when(produtoRepositoryMock.findById(1)).thenReturn(Optional.of(p));
         }
@@ -199,12 +199,8 @@ class ProdutoServiceTest {
         void testUpdateProdutoInvalido(Produto produto) {
             when(produtoRepositoryMock.save(produto)).thenReturn(produto);
 
-            try {
-                produtoService.update(1, produto);
-                fail("Não lançou exceção!!!");
-            } catch (ProdutoNotFoundException | CampoBlankException e) {
-                assertEquals("Preencha os campos corretamente!", e.getMessage());
-            }
+            Exception e = assertThrows(CampoBlankException.class, () -> produtoService.update(1, produto));
+            assertEquals("Preencha os campos corretamente!", e.getMessage());
         }
 
         @ParameterizedTest(name = "Teste {index}")
@@ -215,15 +211,8 @@ class ProdutoServiceTest {
             Integer id = 1;
             Produto produtoEsperado = new Produto(id, produto.getNome(), produto.getPreco(), produto.getCategoria());
 
-            try {
-                Produto produtoRetornado = produtoService.update(id, produto);
-                assertAll(() -> assertEquals(id, produtoRetornado.getId()),
-                        () -> assertEquals(produtoEsperado.getNome(), produtoRetornado.getNome()),
-                        () -> assertEquals(produtoEsperado.getPreco(), produtoRetornado.getPreco()),
-                        () -> assertEquals(produtoEsperado.getCategoria(), produtoRetornado.getCategoria()));
-            } catch (ProdutoNotFoundException | CampoBlankException e) {
-                fail("Não era pra lançar exceção!!!");
-            }
+            Produto produtoRetornado = assertDoesNotThrow(() -> produtoService.update(id, produto));
+            assertEquals(produtoEsperado, produtoRetornado);
         }
 
     }
@@ -233,22 +222,16 @@ class ProdutoServiceTest {
 
         @Test
         void testDeleteIdInexistente() {
-            try {
-                produtoService.delete(999999);
-                fail("Não lançou exceção!");
-            } catch (ProdutoNotFoundException e) {
-                assertEquals("Não existe nenhum produto com esse ID!", e.getMessage());
-            }
+            when(produtoRepositoryMock.findById(9999999)).thenReturn(Optional.empty());
+
+            Exception e = assertThrows(ProdutoNotFoundException.class, () -> produtoService.delete(9999999));
+            assertEquals("Não existe nenhum produto com esse ID!", e.getMessage());
         }
 
         @Test
         void testDeleteIdNegativo() {
-            try {
-                produtoService.delete(-1);
-                fail("Não lançou exceção!!");
-            } catch (ProdutoNotFoundException e) {
-                assertEquals("Não existem produtos com ID negativo!", e.getMessage());
-            }
+            Exception e = assertThrows(ProdutoNotFoundException.class, () -> produtoService.delete(-1));
+            assertEquals("Não existem produtos com ID negativo!", e.getMessage());
         }
 
     }

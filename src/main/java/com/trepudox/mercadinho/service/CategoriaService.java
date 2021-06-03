@@ -47,10 +47,10 @@ public class CategoriaService {
     }
 
     public Categoria save(Categoria categoria) throws CampoBlankException {
-        if (categoria.getNome().isBlank())
+        if (categoria.getNome() == null || categoria.getNome().isBlank())
             throw new CampoBlankException("O campo 'nome' não pode estar nulo ou em branco!");
 
-        if (categoria.getDescricao().isBlank())
+        if (categoria.getDescricao() == null || categoria.getDescricao().isBlank())
             throw new CampoBlankException("O campo 'descricao' não pode estar nulo ou em branco!");
 
         categoria.setId(null);
@@ -65,13 +65,13 @@ public class CategoriaService {
         boolean nomeIsBlank = categoria.getNome() == null || categoria.getNome().isBlank();
         boolean descricaoIsBlank = categoria.getDescricao() == null || categoria.getDescricao().isBlank();
 
-        if (nomeIsBlank && descricaoIsBlank)
+        if (nomeIsBlank || descricaoIsBlank)
             throw new CampoBlankException("Preencha os campos corretamente!");
 
         categoria.setId(c.getId());
         categoria.setProdutos(c.getProdutos());
 
-        return categoriaRepository.save(c);
+        return categoriaRepository.save(categoria);
     }
 
     public void delete(Integer id) throws CategoriaNotFoundException {

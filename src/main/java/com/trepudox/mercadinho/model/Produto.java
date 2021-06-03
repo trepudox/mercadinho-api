@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "tb_produto")
-@Getter @Setter @EqualsAndHashCode
+@Data @Builder
 @NoArgsConstructor @AllArgsConstructor
 public class Produto {
 
